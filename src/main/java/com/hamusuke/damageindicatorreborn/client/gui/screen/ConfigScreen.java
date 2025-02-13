@@ -27,6 +27,7 @@ public class ConfigScreen extends Screen {
     private static final Component HIDE_INDICATOR = Component.translatable("options." + MOD_ID + ".hideIndicator");
     private static final Component FORCE_INDICATOR_RENDERING = Component.translatable("options." + MOD_ID + ".forceindicatorrendering");
     private static final Component CHANGE_COLOR_WHEN_CRIT = Component.translatable("options." + MOD_ID + ".changeColorWhenCrit");
+    private static final Component ENABLE_HEAL_PLUS_STRING = Component.translatable("options." + MOD_ID + ".enableHealPlusString");
     private static final Component SHOW_FLOATING_POINT = Component.translatable("options." + MOD_ID + ".showFloatingPoint");
     private static final Component DISABLE_BIGGER_FONT_WHEN_CRIT = Component.translatable("options." + MOD_ID + ".disableBiggerFontWhenCrit");
     private static final Component FONT_SIZE = Component.translatable("options." + MOD_ID + ".fontsize");
@@ -61,19 +62,24 @@ public class ConfigScreen extends Screen {
             Config.CLIENT.changeColorWhenCrit.set(aBoolean);
         }));
 
+        this.list.addButton(CycleButton.onOffBuilder(Config.CLIENT.enableHealPlusString.get()).create(0, 0, 0, 20, ENABLE_HEAL_PLUS_STRING, (cycleButton, aBoolean) -> {
+            Config.CLIENT.enableHealPlusString.set(aBoolean);
+        }));
+
         this.list.addButton(CycleButton.onOffBuilder(Config.CLIENT.disableBiggerFontSizeWhenCrit.get()).create(0, 0, 0, 20, DISABLE_BIGGER_FONT_WHEN_CRIT, (cycleButton, aBoolean) -> {
             Config.CLIENT.disableBiggerFontSizeWhenCrit.set(aBoolean);
         }));
 
-        this.list.addButton(new AbstractSliderButton(0, 0, 0, 20, CommonComponents.optionNameValue(FONT_SIZE, Component.literal(Math.round(Config.CLIENT.fontSize.get() * 100.0D) + "%")), Config.CLIENT.fontSize.get()) {
+        this.list.addButton(new AbstractSliderButton(0, 0, 0, 20, CommonComponents.optionNameValue(FONT_SIZE, Component.literal(Math.round(Config.CLIENT.fontSize.get()) + "%")), Config.CLIENT.fontSize.get()) {
             @Override
             protected void updateMessage() {
-                this.setMessage(CommonComponents.optionNameValue(FONT_SIZE, Component.literal(Math.round(Config.CLIENT.fontSize.get() * 100.0D) + "%")));
+                this.setMessage(CommonComponents.optionNameValue(FONT_SIZE, Component.literal(Math.round(Config.CLIENT.fontSize.get()) + "%")));
             }
 
             @Override
             protected void applyValue() {
-                Config.CLIENT.fontSize.set(Mth.clamp(this.value, 0.0D, 1.0D));
+                double newFontSize = Mth.clamp(this.value * 1000.0D, 0.0D, 1000.0D);  // 缩放到 [0.0, 1000.0]
+                Config.CLIENT.fontSize.set(newFontSize);  // 保存回 0.0 到 1.0 的范围
             }
         });
 
@@ -142,41 +148,6 @@ public class ConfigScreen extends Screen {
         }
 
         @OnlyIn(Dist.CLIENT)
-        private class ColorList extends ObjectSelectionList<ColorList.Color> {
-            public ColorList() {
-                super(ColorSettingsScreen.this.minecraft, ColorSettingsScreen.this.width, ColorSettingsScreen.this.height, 20, ColorSettingsScreen.this.height - 20, 20);
-                for (var rgb : Config.CLIENT.colorConfig.immutable()) {
-                    this.addEntry(new Color(rgb));
-                }
-            }
-
-            @OnlyIn(Dist.CLIENT)
-            private class Color extends ObjectSelectionList.Entry<Color> {
-                private final Button button;
-
-                private Color(RGBValue rgbConfig) {
-                    this.button = Button.builder(Component.translatable(MOD_ID + ".config.color." + rgbConfig.path), p_onPress_1_ -> ColorSettingsScreen.this.minecraft.setScreen(new ColorMixingScreen(ColorSettingsScreen.this, rgbConfig))).bounds(ColorSettingsScreen.this.width / 4, 0, ColorSettingsScreen.this.width / 2, 20).build();
-                }
-
-                @Override
-                public void render(GuiGraphics guiGraphics, int i, int i1, int i2, int i3, int i4, int i5, int i6, boolean b, float v) {
-                    this.button.setY(i1);
-                    this.button.render(guiGraphics, i5, i6, v);
-                }
-
-                @Override
-                public boolean mouseClicked(double p_231044_1_, double p_231044_3_, int p_231044_5_) {
-                    return this.button.mouseClicked(p_231044_1_, p_231044_3_, p_231044_5_);
-                }
-
-                @Override
-                public Component getNarration() {
-                    return CommonComponents.EMPTY;
-                }
-            }
-        }
-
-        @OnlyIn(Dist.CLIENT)
         private static class ColorMixingScreen extends Screen {
             @Nullable
             private final Screen parent;
@@ -220,6 +191,41 @@ public class ConfigScreen extends Screen {
             @Override
             public void onClose() {
                 this.minecraft.setScreen(this.parent);
+            }
+        }
+
+        @OnlyIn(Dist.CLIENT)
+        private class ColorList extends ObjectSelectionList<ColorList.Color> {
+            public ColorList() {
+                super(ColorSettingsScreen.this.minecraft, ColorSettingsScreen.this.width, ColorSettingsScreen.this.height, 20, ColorSettingsScreen.this.height - 20, 20);
+                for (var rgb : Config.CLIENT.colorConfig.immutable()) {
+                    this.addEntry(new Color(rgb));
+                }
+            }
+
+            @OnlyIn(Dist.CLIENT)
+            private class Color extends ObjectSelectionList.Entry<Color> {
+                private final Button button;
+
+                private Color(RGBValue rgbConfig) {
+                    this.button = Button.builder(Component.translatable(MOD_ID + ".config.color." + rgbConfig.path), p_onPress_1_ -> ColorSettingsScreen.this.minecraft.setScreen(new ColorMixingScreen(ColorSettingsScreen.this, rgbConfig))).bounds(ColorSettingsScreen.this.width / 4, 0, ColorSettingsScreen.this.width / 2, 20).build();
+                }
+
+                @Override
+                public void render(GuiGraphics guiGraphics, int i, int i1, int i2, int i3, int i4, int i5, int i6, boolean b, float v) {
+                    this.button.setY(i1);
+                    this.button.render(guiGraphics, i5, i6, v);
+                }
+
+                @Override
+                public boolean mouseClicked(double p_231044_1_, double p_231044_3_, int p_231044_5_) {
+                    return this.button.mouseClicked(p_231044_1_, p_231044_3_, p_231044_5_);
+                }
+
+                @Override
+                public Component getNarration() {
+                    return CommonComponents.EMPTY;
+                }
             }
         }
     }

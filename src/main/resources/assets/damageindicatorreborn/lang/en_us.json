@@ -6,6 +6,7 @@
   "options.damageindicatorreborn.forceindicatorrendering": "Forcibly Render Indicator",
   "options.damageindicatorreborn.fontsize": "Font Size",
   "options.damageindicatorreborn.changeColorWhenCrit": "Change Color When Critical",
+  "options.damageindicatorreborn.enableHealPlusString": "Enable Heal '+' String When entity healing",
   "options.damageindicatorreborn.displayDistance": "Max Distance to Render Indicator",
   "damageindicatorreborn.config.colorConfig.title": "Color Settings",
   "damageindicatorreborn.config.color.in_fire_damage": "In Fire Damage",
@@ -35,6 +36,7 @@
   "damageindicatorreborn.config.color.critical": "Critical",
   "damageindicatorreborn.config.color.heal": "Heal",
   "damageindicatorreborn.config.color.immune": "Immune",
+  "damageindicatorreborn.config.color.player": "Player Normal attack",
   "options.damageindicatorreborn.showFloatingPoint": "Show Floating Point",
   "options.damageindicatorreborn.disableBiggerFontWhenCrit": "Disable Bigger Font Size When Critical"
 }

@@ -104,7 +104,7 @@ public final class DamageIndicatorRebornClient {
                 var result = mc.level.clip(new ClipContext(mc.player.position(), vec3, ClipContext.Block.COLLIDER, ClipContext.Fluid.NONE, null));
                 if ((Config.CLIENT.forceIndicatorRendering.get() || result.getType() == HitResult.Type.MISS) && distance <= (float) Config.CLIENT.renderDistance.get()) {
                     value = Math.min(value, MAX_DAMAGE);
-                    renderers.add(new IndicatorRenderer(x, y, z, (source.equalsIgnoreCase("heal") ? "+" : "") + (Config.CLIENT.showFloatingPoint.get() ? String.format("%.1f", value) : String.format("%d", MthH.toInt(value))), source, crit, distance));
+                    renderers.add(new IndicatorRenderer(x, y, z, (source.equalsIgnoreCase("heal")&&Config.CLIENT.enableHealPlusString.get() ? "+" : "") + (Config.CLIENT.showFloatingPoint.get() ? String.format("%.1f", value) : String.format("%d", MthH.toInt(value))), source, crit, distance));
                 }
             }
         }

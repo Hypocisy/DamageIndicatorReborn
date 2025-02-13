@@ -100,7 +100,7 @@ public class IndicatorRenderer {
             this.markDead();
         } else {
             float scale = this.calculateScale(mc.isPaused());
-            scale *= Config.CLIENT.fontSize.get();
+            scale *= (float) (Config.CLIENT.fontSize.get()/100);
             double x = Mth.lerp(tickDelta, this.prevPosX, this.x);
             double y = Mth.lerp(tickDelta, this.prevPosY, this.y);
             double z = Mth.lerp(tickDelta, this.prevPosZ, this.z);
